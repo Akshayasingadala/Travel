@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Itinerary Generator - Plan Your Perfect Trip</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-plane"></i>
+                <span>Travel Planner</span>
+            </div>
+            <p class="tagline">Plan Your Journey Effortlessly</p>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="hero-section">
+            <h1>Create Your Perfect Travel Plan</h1>
+            <p>Generate personalized itineraries powered by AI</p>
+        </header>
+
+        <main>
+            <div class="form-card">
+                <h2>Plan Your Adventure</h2>
+                <form method="POST" action="/generate" class="itinerary-form">
+                    <div class="form-group">
+                        <label for="city">
+                            <i class="fas fa-map-marker-alt"></i> Destination City
+                        </label>
+                        <input 
+                            type="text" 
+                            id="city"
+                            name="city" 
+                            placeholder="e.g., Paris, Tokyo, New York" 
+                            required
+                            class="form-input"
+                        >
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="days">
+                                <i class="fas fa-calendar"></i> Number of Days
+                            </label>
+                            <input 
+                                type="number" 
+                                id="days"
+                                name="days" 
+                                min="1" 
+                                max="30" 
+                                placeholder="e.g., 5" 
+                                required
+                                class="form-input"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="budget">
+                                <i class="fas fa-wallet"></i> Budget
+                            </label>
+                            <input 
+                                type="text" 
+                                id="budget"
+                                name="budget" 
+                                placeholder="e.g., $5000" 
+                                required
+                                class="form-input"
+                            >
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-magic"></i> Generate Plan
+                    </button>
+                </form>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <div class="alert-content">
+                    <h3>Error</h3>
+                    <p>{{ error }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Travel Itinerary Generator. Powered by AI.</p>
+    </footer>
+
+    <script>
+        // Add loading state
+        document.querySelector('form').addEventListener('submit', function() {
+            const btn = this.querySelector('.btn-submit');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        });
+    </script>
+</body>
+</html>

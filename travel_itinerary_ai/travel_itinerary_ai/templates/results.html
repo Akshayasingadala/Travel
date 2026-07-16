@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Travel Itinerary - Travel Planner</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .results-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .results-banner {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-dark);
+            padding: 40px;
+            text-align: center;
+        }
+
+        .results-banner h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .trip-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 40px;
+            background: linear-gradient(135deg, #F5E6E0, #E8DFF5);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .detail-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .detail-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .detail-card i {
+            font-size: 36px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .detail-label {
+            color: var(--text-light);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            color: var(--text-dark);
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .itinerary-section {
+            padding: 40px;
+        }
+
+        .itinerary-section h2 {
+            color: var(--text-dark);
+            font-size: 28px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-subtitle {
+            color: var(--text-light);
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .itinerary-display {
+            background: linear-gradient(135deg, #F9F6F3, #E8DFF5);
+            padding: 30px;
+            border-radius: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            line-height: 1.8;
+            color: var(--text-dark);
+            font-size: 15px;
+            max-height: 800px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary-color);
+            display: none;
+        }
+
+        .itinerary-display::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .itinerary-display::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .itinerary-display::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        /* Day Cards Styling - Accordion */
+        .days-container {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .day-card {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .day-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 8px 20px rgba(200, 163, 212, 0.15);
+        }
+
+        .day-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px 25px;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+
+        .day-header:hover {
+            background: linear-gradient(135deg, #B89FD9, #A8D5D4);
+        }
+
+        .day-header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .day-number {
+            background: rgba(255, 255, 255, 0.3);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .day-title {
+            flex: 1;
+        }
+
+        .expand-icon {
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .day-card.active .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .day-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+            background: #FAFAFA;
+        }
+
+        .day-card.active .day-content {
+            max-height: 2000px;
+        }
+
+        .day-body {
+            padding: 30px;
+            color: var(--text-dark);
+            line-height: 1.8;
+            font-size: 15px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Segoe UI', 'Courier New', monospace;
+        }
+
+        .day-body strong {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            flex: 1;
+            min-width: 150px;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-copy {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-copy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(168, 213, 212, 0.3);
+        }
+
+        .btn-download {
+            background: var(--accent-color);
+            color: var(--text-dark);
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(245, 213, 200, 0.3);
+        }
+
+        .btn-new {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            min-width: 200px;
+        }
+
+        .btn-new:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(200, 163, 212, 0.3);
+        }
+
+        .btn-details {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+        }
+
+        .btn-details:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(200, 163, 212, 0.3);
+        }
+
+        .results-footer {
+            padding: 30px 40px;
+            border-top: 2px solid var(--border-color);
+            text-align: center;
+            color: var(--text-light);
+        }
+
+        .results-footer p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .toast-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--secondary-color);
+            color: var(--text-dark);
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            animation: slideInRight 0.4s ease-out;
+        }
+
+        .toast-notification i {
+            margin-right: 10px;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .trip-details {
+                grid-template-columns: 1fr;
+            }
+
+            .results-banner {
+                padding: 25px;
+            }
+
+            .results-banner h1 {
+                font-size: 28px;
+            }
+
+            .itinerary-section {
+                padding: 25px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-action {
+                width: 100%;
+            }
+
+            .day-header {
+                padding: 15px 20px;
+                font-size: 16px;
+            }
+
+            .day-header-content {
+                gap: 12px;
+            }
+
+            .day-number {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .expand-icon {
+                font-size: 18px;
+            }
+
+            .day-body {
+                padding: 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-plane"></i>
+                <span>Travel Planner</span>
+            </div>
+            <p class="tagline">Your Perfect Itinerary Awaits</p>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="results-container">
+            <div class="results-banner">
+                <h1><i class="fas fa-check-circle"></i> Your Itinerary is Ready!</h1>
+                <p style="margin: 0; opacity: 0.95;">Explore your personalized travel plan below</p>
+            </div>
+
+            <div class="trip-details">
+                <div class="detail-card">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div class="detail-label">Destination</div>
+                    <div class="detail-value">{{ city }}</div>
+                </div>
+                <div class="detail-card">
+                    <i class="fas fa-calendar-days"></i>
+                    <div class="detail-label">Duration</div>
+                    <div class="detail-value">{{ days }} Days</div>
+                </div>
+                <div class="detail-card">
+                    <i class="fas fa-wallet"></i>
+                    <div class="detail-label">Budget</div>
+                    <div class="detail-value">{{ budget }}</div>
+                </div>
+            </div>
+
+            <div class="itinerary-section">
+                <h2>
+                    <i class="fas fa-itinerary"></i> Your Complete Itinerary
+                </h2>
+                <p class="section-subtitle">A detailed day-by-day plan for your amazing trip</p>
+
+                <!-- Hidden original itinerary for parsing -->
+                <div class="itinerary-display" id="itinerary-content">{{ itinerary }}</div>
+
+                <!-- Days Container with Cards -->
+                <div class="days-container" id="days-container"></div>
+
+                <div class="action-buttons">
+                    <button class="btn-action btn-copy" onclick="copyToClipboard()">
+                        <i class="fas fa-copy"></i> Copy to Clipboard
+                    </button>
+                    <button class="btn-action btn-download" onclick="downloadItinerary()">
+                        <i class="fas fa-download"></i> Download as Text
+                    </button>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <a href="/" class="btn-action btn-new" style="text-decoration: none; display: inline-flex;">
+                        <i class="fas fa-plus"></i> Plan Another Trip
+                    </a>
+                </div>
+            </div>
+
+            <div class="results-footer">
+                <p><i class="fas fa-lightbulb"></i> Tip: Save your itinerary and share it with your travel companions!</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Travel Itinerary Generator. Powered by AI.</p>
+    </footer>
+
+    <script>
+        // Parse and format itinerary on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const rawItinerary = document.getElementById('itinerary-content').innerText;
+            parseAndDisplayItinerary(rawItinerary);
+        });
+
+        function parseAndDisplayItinerary(text) {
+            const daysContainer = document.getElementById('days-container');
+            daysContainer.innerHTML = '';
+
+            // STRICT: Split by day headers - look for "Day 1:", "Day 2:", etc. ONLY
+            // Must have "Day" keyword followed by number and colon
+            const dayPattern = /^\s*Day\s+(\d+)\s*:/gmi;
+            const matches = Array.from(text.matchAll(dayPattern));
+            
+            if (matches.length === 0) {
+                // If no days found, show entire itinerary
+                const card = createDayCardAccordion(1, "Complete Itinerary", text);
+                daysContainer.appendChild(card);
+                return;
+            }
+
+            // Extract content for each day
+            for (let i = 0; i < matches.length; i++) {
+                const currentMatch = matches[i];
+                const dayNumber = currentMatch[1];
+                const startIndex = currentMatch.index;
+                
+                // Find the next day header or end of text
+                const nextMatch = i < matches.length - 1 ? matches[i + 1] : null;
+                const endIndex = nextMatch ? nextMatch.index : text.length;
+                
+                // Extract the full day content (including costs)
+                let dayContent = text.substring(startIndex, endIndex).trim();
+                
+                // Remove major sections but keep costs section
+                dayContent = dayContent.split(/\n(Travel Tips|Budget Breakdown|Note:)/i)[0];
+                
+                // Extract title from first line
+                const titleMatch = dayContent.match(/Day\s+\d+\s*:\s*([^\n]+)/i);
+                const dayTitle = titleMatch ? titleMatch[1].trim() : `Day ${dayNumber}`;
+                
+                // Create card with full content
+                const card = createDayCardAccordion(dayNumber, dayTitle, dayContent);
+                daysContainer.appendChild(card);
+            }
+        }
+
+        function createDayCardAccordion(dayNumber, dayTitle, dayContent) {
+            const card = document.createElement('div');
+            card.className = 'day-card';
+            
+            // Clean up and format content
+            const lines = dayContent.split('\n');
+            const seenCostLines = new Set();
+            
+            let cleanedContent = lines
+                .filter(line => {
+                    // Remove exact duplicate lines (especially costs)
+                    const trimmed = line.trim();
+                    if (!trimmed) return true; // Keep empty lines
+                    
+                    // Check if it's a cost line
+                    if (trimmed.match(/entry.*fee|cost|price|₹|\$|Estimated/i)) {
+                        if (seenCostLines.has(trimmed)) {
+                            return false; // Skip exact duplicate
+                        }
+                        seenCostLines.add(trimmed);
+                    }
+                    return true;
+                })
+                .map(line => {
+                    // Replace markdown bold and asterisks
+                    return line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\*\*/g, '')
+                        .replace(/^\s*\*\s+/, ''); // Remove bullet points
+                })
+                .join('\n');
+            
+            card.innerHTML = `
+                <div class="day-header" onclick="toggleDay(this)">
+                    <div class="day-header-content">
+                        <div class="day-number">${dayNumber}</div>
+                        <div class="day-title">${dayTitle}</div>
+                    </div>
+                    <div class="expand-icon">▼</div>
+                </div>
+                <div class="day-content">
+                    <div class="day-body">${cleanedContent}</div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function toggleDay(header) {
+            const card = header.closest('.day-card');
+            card.classList.toggle('active');
+        }
+
+        function copyToClipboard() {
+            const text = document.getElementById('itinerary-content').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('✅ Itinerary copied to clipboard!');
+            }).catch(() => {
+                alert('Failed to copy. Please try again.');
+            });
+        }
+
+        function downloadItinerary() {
+            const text = document.getElementById('itinerary-content').innerText;
+            const city = '{{ city }}';
+            const days = '{{ days }}';
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', `${city}_itinerary_${days}days.txt`);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+            showNotification('📥 Itinerary downloaded!');
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'toast-notification';
+            notification.innerHTML = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(50px)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
